@@ -128,7 +128,7 @@ class _TranslateTree(Transformer):
         return self.conj(lhs, rhs)
 
     def comp_grp(self, exp):
-        return f'({exp})'
+        return f'({exp})' if exp else None
 
     def simple_comp_exp(self, lhs, op, rhs):
         return self._make_comp(lhs, op, rhs)

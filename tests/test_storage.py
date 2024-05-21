@@ -792,3 +792,17 @@ def test_value_counts(fake_bundle_file, tmpdir):
     assert henry['count'] == 2
     isabel = [i for i in data if i['account_login'] == 'isabel'][0]
     assert isabel['count'] == 12
+
+
+def test_extract_outside_pattern(fake_bundle_file, tmpdir):
+    """
+    Conjunction using properties "outside" the returned entity type inside parens caused issues
+    https://github.com/opencybersecurityalliance/firepit/issues/124
+    """
+    with open(fake_bundle_file, 'r') as fp:
+        bundle = ujson.loads(fp.read())
+
+    store = tmp_storage(tmpdir)
+    store.cache('q1', bundle)
+
+    store.extract('nt', 'network-traffic', 'q1', "[(url:value LIKE '%page/1%' AND x-oca-asset:hostName LIKE 'pc%')]")
