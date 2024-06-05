@@ -806,3 +806,22 @@ def test_extract_outside_pattern(fake_bundle_file, tmpdir):
     store.cache('q1', bundle)
 
     store.extract('nt', 'network-traffic', 'q1', "[(url:value LIKE '%page/1%' AND x-oca-asset:hostName LIKE 'pc%')]")
+
+
+def test_extract_outside_pattern_with_qualifier(fake_bundle_file, tmpdir):
+    """
+    Conjunction using properties "outside" the returned entity type inside parens caused issues
+    https://github.com/opencybersecurityalliance/firepit/issues/124
+    """
+    with open(fake_bundle_file, 'r') as fp:
+        bundle = ujson.loads(fp.read())
+
+    store = tmp_storage(tmpdir)
+    store.cache('q1', bundle)
+
+    # Need START/STOP qualifier otherwise `start` rule from Transformer is inlined
+    store.extract('nt', 'network-traffic', 'q1', ("[(process:pid IN (1, 2, 3) AND x-oca-asset:hostname IN ('foo', 'bar'))]"
+                                                  " START t'2019-11-16T12:50:28.101Z' STOP t'2019-11-16T13:36:25.354Z'"))
+
+    # This next call is the actual one that raises firepit.exceptions.InvalidAttr: invalid attribute: None
+    store.values('network-traffic:dst_port', 'nt')

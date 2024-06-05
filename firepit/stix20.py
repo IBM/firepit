@@ -104,7 +104,6 @@ class _TranslateTree(Transformer):
         self.dialect = dialect
 
     def _make_comp(self, lhs, op, rhs):
-        orig_op = op
         sco_type, _, prop = lhs.partition(':')
 
         # Ignore object paths that don't match table type
@@ -153,7 +152,7 @@ class _TranslateTree(Transformer):
 
     def start(self, exp, qualifier):
         # For now, drop the qualifier.  Assume the query handled it.
-        return f'{exp}'
+        return f'{exp}' if exp else None
 
     def object_path(self, sco_type, prop):
         return f'{sco_type}:{prop}'
